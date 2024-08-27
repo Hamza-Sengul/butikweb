@@ -1,16 +1,1170 @@
-<div class="product-detail">
-    <h1>{{ product.name }}</h1>
-    <div class="product-images">
-        {% for image in product.images.all %}
-        <img src="{{ image.image.url }}" alt="">
+{% extends "layout.html" %}
+
+{% load static %}
+
+{% block content %}
+{% if messages %}
+    <script>
+        {% for message in messages %}
+            alert("{{ message|escapejs }}");
+        {% endfor %}
+    </script>
+{% endif %}
+
+
+<div class="sec2" style="margin-top: 170px;">
+    <div class="urunad">
+        <h2>{{ product.name }}</h2>
+    </div>
+    <div class="urunresim">
+        <!-- Slider -->
+        <div class="slider">
+            <div class="slides">
+                {% for image in product.images.all %}
+                    <div class="slide">
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="prev" aria-label="Previous slide">&#10094;</button>
+            <button class="next" aria-label="Next slide">&#10095;</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="urunad">
+            <h3>Ürün Özellikleri</h3>
+        </div>
+        <ul class="features-list">
+            {% for feature in product.get_features %}
+            <li><span class="icon">&gt;</span><span>{{ feature }}</span></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="fiyat">
+        {{ product.price }} TL
+    </div>
+
+    <div class="rez">
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_to_cart' product.id %}" class="add-to-cart-form">
+                {% csrf_token %}
+                <button type="submit" id="addToCartButton">Sepete Ekle</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">
+                <button id="addToCartButton">Sepete Ekle</button>
+            </a>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // JavaScript for slider
+        const slides = document.querySelector('.slides');
+        const slideCount = document.querySelectorAll('.slide').length;
+        let index = 0;
+
+        const moveToNextSlide = () => {
+            index = (index + 1) % slideCount;
+            slides.style.transform = `translateX(-${index * 100}%)`;
+        };
+
+        const moveToPreviousSlide = () => {
+            index = (index - 1 + slideCount) % slideCount;
+            slides.style.transform = `translateX(-${index * 100}%)`;
+        };
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        const handleTouchStart = (e) => {
+            touchStartX = e.touches[0].clientX;
+        };
+
+        const handleTouchEnd = (e) => {
+            touchEndX = e.touches[0].clientX;
+            if (touchStartX > touchEndX + 50) {
+                // Swipe left
+                moveToNextSlide();
+            } else if (touchStartX < touchEndX - 50) {
+                // Swipe right
+                moveToPreviousSlide();
+            }
+        };
+
+        // Slider functionality
+        slides.addEventListener('touchstart', handleTouchStart);
+        slides.addEventListener('touchend', handleTouchEnd);
+
+        // Button functionality
+        document.querySelector('.prev').addEventListener('click', moveToPreviousSlide);
+        document.querySelector('.next').addEventListener('click', moveToNextSlide);
+    });
+</script>
+
+
+
+
+
+<div class="comments-section my-5">
+    <h3 class="mb-4">Yorumlar</h3>
+    {% for comment in comments %}
+        <div class="comment mb-4 p-3 bg-light rounded">
+            <div class="d-flex justify-content-between">
+                <p class="font-weight-bold mb-1">{{ comment.masked_name }}:</p>
+                <div class="mb-1">
+                    <span class="star-rating">
+                        {% for i in "12345" %}
+                            {% if i|add:"0" <= comment.rating %}
+                                <i class="fas fa-star" style="color: #ffc107;"></i> <!-- Filled star -->
+                            {% else %}
+                                <i class="far fa-star" style="color: #e4e5e9;"></i> <!-- Empty star -->
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+            </div>
+            <p class="mb-0">{{ comment.content }}</p>
+        </div>
+    {% empty %}
+        <p class="text-muted">Henüz yorum yapılmamış.</p>
+    {% endfor %}
+</div>
+
+<div class="comment-form">
+    <h3 class="mb-4">Yorum Yap</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name">Ad</label>
+            <input type="text" id="id_name" name="name" class="form-control" placeholder="Adınızı giriniz">
+        </div>
+        <div class="form-group">
+            <label for="id_surname">Soyad</label>
+            <input type="text" id="id_surname" name="surname" class="form-control" placeholder="Soyadınızı giriniz">
+        </div>
+        
+        <div class="form-group">
+            <label for="id_email">Email</label>
+            <input type="email" id="id_email" name="email" class="form-control" placeholder="Email adresinizi giriniz">
+        </div>
+        <div class="form-group">
+            <label for="id_content">Yorum</label>
+            <textarea id="id_content" name="content" class="form-control" rows="4" placeholder="Yorumunuzu yazınız" style="padding: 10px;"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="id_rating">Puan</label>
+            <div id="star-rating" class="d-flex align-items-center">
+                <input type="hidden" id="id_rating" name="rating" value="0">
+                <span class="star" data-value="1">&#9733;</span>
+                <span class="star" data-value="2">&#9733;</span>
+                <span class="star" data-value="3">&#9733;</span>
+                <span class="star" data-value="4">&#9733;</span>
+                <span class="star" data-value="5">&#9733;</span>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Yorumu Gönder</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stars = document.querySelectorAll('#star-rating .star');
+        const ratingInput = document.getElementById('id_rating');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function () {
+                const value = this.getAttribute('data-value');
+                ratingInput.value = value;
+
+                // Reset star colors
+                stars.forEach(s => s.style.color = '#e4e5e9');
+                
+                // Set color for selected stars
+                for (let i = 0; i < value; i++) {
+                    stars[i].style.color = '#ffc107';
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .star {
+        font-size: 24px;
+        cursor: pointer;
+        color: #e4e5e9; /* Default star color */
+        margin-right: 5px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .comment-form {
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .comments-section {
+        padding: 20px;
+        background-color: #f1f1f1;
+        border-radius: 5px;
+    }
+
+    .comment {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+<h2 style="text-align: center; margin-top: 30px; margin-bottom: 30px;">Bunları da Beğenebilirsiniz</h2>
+<!-- Yatay Kaydırılabilir Ürün Kartları -->
+<div class="urunler-slider-container">
+    <button class="slider-prev" onclick="slideLeft()">&#10094;</button>
+    <div class="urunler-slider">
+        {% for product in related_products %}
+        <div class="uruncard2">
+            <div class="uruncardresim2">
+                {% for image in product.images.all %}
+                {% if forloop.first %}
+                <a href="{% url 'product_detail' product.id %}"><img src="{{ image.image.url }}" alt="{{ product.name }}"></a>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="uruncardad">
+                <a href="{% url 'product_detail' product.id %}"><h3>{{ product.name }}</h3></a>
+            </div>
+            <div class="uruncardbg">
+                <a href="#">{{ product.category.name }}</a>
+            </div>
+            <div class="uruncardkalp2" style="z-index: 999;">
+                {% if user.is_authenticated %}
+                    {% if product.id in user_favorites %}
+                        <a href="{% url 'add_to_favorites' product.id %}" class="favorite-toggle" data-product-id="{{ product.id }}">
+                            <i class="fa-solid fa-heart" style="color: red;"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'add_to_favorites' product.id %}" class="favorite-toggle" data-product-id="{{ product.id }}">
+                            <i class="fa-regular fa-heart"></i>
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}"><i class="fa-regular fa-heart"></i></a>
+                {% endif %}
+            </div>
+            
+            <div class="uruncardfiyat">
+                <p>{{ product.price }} TL</p>
+            </div>
+            <div class="uruncardkesfet2">
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'add_to_cart' product.id %}" class="add-to-cart-form">
+                        {% csrf_token %}
+                        <button type="submit" id="addToCartButton{{ forloop.counter }}">Sepete Ekle</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">
+                        <button id="addToCartButton{{ forloop.counter }}">Sepete Ekle</button>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
         {% endfor %}
     </div>
-    <p>{{ product.description }}</p>
-    <ul>
-        {% for feature in product.get_features %}
-        <li>{{ feature }}</li>
-        {% endfor %}
-    </ul>
-    <p>Price: {{ product.price }} TL</p>
-    <button id="addToCartButton">Sepete Ekle</button>
+    <button class="slider-next" onclick="slideRight()">&#10095;</button>
 </div>
+
+<style>
+.urunler-slider-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 40px;
+}
+
+.urunler-slider {
+    display: flex;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    gap: 20px; /* Kartlar arasındaki boşluk */
+}
+
+.uruncard2 {
+    flex: 0 0 auto;
+    width: 300px; /* Kart genişliği */
+    box-sizing: border-box;
+    margin: 0; /* Kartlar arasında boşluk sağlamak için gap kullanıyoruz */
+}
+
+.slider-prev,
+.slider-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.slider-prev {
+    left: 10px;
+}
+
+.slider-next {
+    right: 10px;
+}
+
+</style>
+
+
+<script>
+    let currentIndex = 0;
+
+    function slideTo(index) {
+        const slider = document.querySelector('.urunler-slider');
+        const cards = document.querySelectorAll('.uruncard2');
+        const cardWidth = cards[0].offsetWidth + 20; // Kart genişliği + gap (boşluk)
+        const maxIndex = cards.length - 1;
+
+        if (index < 0) {
+            currentIndex = 0;
+        } else if (index > maxIndex) {
+            currentIndex = maxIndex;
+        } else {
+            currentIndex = index;
+        }
+
+        const scrollAmount = cardWidth * currentIndex;
+        slider.scrollLeft = scrollAmount;
+    }
+
+    function slideLeft() {
+        slideTo(currentIndex - 1);
+    }
+
+    function slideRight() {
+        slideTo(currentIndex + 1);
+    }
+
+    // Sayfa yüklendiğinde ilk kartı ortalar
+    document.addEventListener('DOMContentLoaded', function() {
+        slideTo(currentIndex);
+    });
+</script>
+
+
+
+
+
+
+
+
+
+<style>
+    .prev, .next {
+   position: absolute;
+   top: 50%;
+   transform: translateY(-50%);
+   background-color: rgba(0, 0, 0, 0.5);
+   color: white;
+   border: none;
+   font-size: 2rem;
+   cursor: pointer;
+   padding: 0.5rem;
+   z-index: 100;
+}
+
+/* Positioning */
+.prev {
+   left: 10px;
+}
+
+.next {
+   right: 10px;
+}
+
+/* Make slider swipeable on mobile devices */
+.slider {
+   touch-action: pan-y; /* Allows horizontal swipe */
+}
+    .features-list {
+           list-style-type: none;
+           padding: 0;
+       }
+   .rules-list {
+           list-style-type: none;
+           padding: 0;
+       }
+       .rules-list li {
+           margin: 10px 0;
+           padding: 10px;
+           border-radius: 5px;
+           display: flex;
+           align-items: center;
+           background-color: #f8f8f8;
+           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+       }
+       .rules-list li .icon {
+           color: red;
+           font-weight: bold;
+           margin-right: 10px;
+       }
+       .features-list li {
+           margin: 10px 0;
+           padding: 10px;
+           border-radius: 5px;
+           display: flex;
+           align-items: center;
+           background-color: #f8f8f8;
+           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+       }
+       .features-list li .icon {
+           color: rgb(0, 255, 21);
+           font-weight: bold;
+           margin-right: 10px;
+       }
+       @media (max-width: 600px) {
+           .container {
+               padding: 10px;
+           }
+           .rules-list li {
+               padding: 8px;
+           }
+           .features-list li {
+               padding: 8px;
+           }
+       }
+   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+   body {
+       font-family: "Roboto", sans-serif;
+   }
+   section {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       width: 100%;
+       padding-top: 100px;
+   }
+   .sec {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       width: 100%;
+       padding-top: 10px;
+   }
+   .card {
+   background: white;
+   border-radius: 10px;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   padding: 20px;
+   width: 350px;
+}
+.card i {
+   margin-right: 10px;
+}
+
+.location, .date, .guests {
+   display: flex;
+   align-items: center;
+   margin-bottom: 15px;
+}
+
+.icon {
+   font-size: 24px;
+   margin-right: 10px;
+   color: #1e90ff;
+}
+
+.text {
+   font-weight: bold;
+   font-size: 16px;
+   margin-right: auto;
+}
+
+.subtext {
+   color: gray;
+   font-size: 14px;
+}
+
+.search-button {
+   background: #007bff;
+   color: white;
+   border: none;
+   padding: 10px;
+   width: 100%;
+   border-radius: 5px;
+   cursor: pointer;
+   font-size: 16px;
+}
+
+.search-button:hover {
+   background: #0056b3;
+}
+
+.button-container {
+   display: flex;
+   background: #e0e0e0;
+   border-radius: 10px;
+   overflow: hidden;
+}
+.button-container i {
+   margin-right: 10px;
+   color: black;
+}
+
+.action-button {
+   background: #d7d7d7;
+   border: none;
+   padding: 10px 20px;
+   cursor: pointer;
+   font-size: 16px;
+   display: flex;
+   align-items: center;
+   transition: background-color 0.3s;
+   width: 200px;
+}
+
+.action-button .icon {
+   font-size: 18px;
+   margin-right: 5px;
+}
+
+.action-button:hover {
+   background: #d0d0d0;
+}
+
+.action-button:not(:last-child) {
+   border-right: 1px solid #c0c0c0;
+}
+.urunler {
+   display: grid;
+   grid-template-columns: 1fr;
+   justify-items: center;
+   margin-top: 30px;
+}
+.uruncard2 {
+   width: 340px;
+   height: 450px;
+   display: flex;
+   flex-direction: column;
+   background-color: #f3f3f3;
+   box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.75);
+   position: relative;
+   border-radius: 7px;
+}
+.uruncard2 img {
+   width: 100%;
+   height: 270px;
+   margin-bottom: 20px;
+   border-radius: 7px 7px 0 0;
+}
+.uruncard2 a {
+   color: black;
+   text-decoration: none;
+}
+.uruncardkalp2 {
+   position: absolute;
+   right: 10px;
+   top: 10px;
+   color: red;
+   z-index: 1000;
+   background-color: white;
+   border-radius: 50%;
+   padding: 10px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+.uruncardkalp2 i {
+   color: red;
+   font-size: larger;
+}
+.uruncardon {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   position: absolute;
+   top: 10px;
+   left: 10px;
+   background-color: #FF4665;
+   padding: 10px;
+   color: white;
+   border-radius: 5px;
+}
+.uruncardon a {
+   color: white;
+   font-family: "Roboto", sans-serif;
+}
+.uruncardad {
+   margin-left: 20px;
+   font-size: larger;
+}
+.uruncardbg {
+   font-size: 12px;
+   font-weight: 300;
+   margin-left: 20px;
+   margin-top: 5px;
+   letter-spacing: 2px;
+}
+.uruncardkonum {
+   letter-spacing: 1px;
+}
+.uruncardkonum i {
+   color: red;
+}
+.uruncard1gun {
+   background-color: white;
+   border: 1px solid #63a498;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   width: 100px;
+   height: 40px;
+   border-radius: 5px;
+   position: absolute;
+   top: 55%;
+   left: 20px;
+}
+.uruncardfiyat2 {
+   font-weight: 700;
+   margin-left: 20px;
+   margin-top: 5px;
+   letter-spacing: 2px;
+}
+.uruncardkesfet2 {
+   position: absolute;
+   bottom: 20px;
+   right: 20px;
+   transition: all 0.3s ease;
+}
+.uruncardkesfet2 button {
+   border:#FF4665;
+   background-color: #FF4665;
+   color: white;
+   border-radius: 5px;
+   padding: 10px;
+   width: 100px;
+   letter-spacing: 2px;
+}
+.uruncardkesfet2 button:hover {
+   background-color: white;
+   border: 1px solid #FF4665;
+}
+.uruncardkesfet2 button:focus,
+ button:hover {
+   color: #FF4665;
+ }
+ .uruncardkesfet2  button:after {
+   content: "";
+   pointer-events: none;
+   bottom: -2px;
+   left: 50%;
+   position: absolute;
+   width: 0%;
+   height: 2px;
+   background-color: #FF4665;
+   transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+   transition-duration: 400ms;
+   transition-property: width, left;
+ }
+ .uruncard1gun i {
+   margin-right: 10px;
+   color: #63a498;
+ }
+ 
+ .container {
+           display: flex;
+           flex-direction: column;
+           width: 400px;
+           margin: auto;
+           font-family: Arial, sans-serif;
+       }
+       .date-picker, .guests {
+           background-color: #f3f3f3;
+           padding: 15px;
+           margin: 10px 0;
+           border-radius: 8px;
+           display: flex;
+           align-items: center;
+           justify-content: space-between;
+       }
+       .date-picker i, .guests i {
+           font-size: 24px;
+       }
+       .date-picker input, .guests input {
+           border: none;
+           background: transparent;
+           font-size: 16px;
+           width: 70%;
+       }
+       .date-picker input:focus, .guests input:focus {
+           outline: none;
+       }
+       .guests {
+           padding-left: 10px;
+       }
+       .sec2 {
+           display: flex;
+           flex-direction: column;
+           justify-content: center;
+           align-items: center;
+       }
+       .urunad {
+           font-size: larger;
+           letter-spacing: 2px;
+       }
+       .konum h3 {
+           font-weight: 300;
+           letter-spacing: 3px;
+           font-style: italic;
+           font-size: medium;
+       }
+       .fiyat {
+           font-weight: 700;
+           margin-bottom: 30px;
+           letter-spacing: 2px;
+       }
+       .rez button {
+           background-color: red;
+           border-radius: 40px;
+           padding: 15px;
+           width: 350px;
+           margin-bottom: 30px;
+           color: white;
+       }
+       .popup {
+           display: none;
+           position: fixed;
+           z-index: 1;
+           left: 0;
+           top: 0;
+           width: 100%;
+           height: 100%;
+           overflow: auto;
+           background-color: rgb(0,0,0);
+           background-color: rgba(0,0,0,0.4);
+           padding-top: 60px;
+       }
+       .popup-content {
+           background-color: #fefefe;
+           margin: 5% auto;
+           padding: 20px;
+           border: 1px solid #888;
+           width: 80%;
+           max-width: 400px;
+           border-radius: 10px;
+           text-align: center;
+       }
+       .close {
+           color: #aaa;
+           float: right;
+           font-size: 28px;
+           font-weight: bold;
+       }
+       .close:hover,
+       .close:focus {
+           color: black;
+           text-decoration: none;
+           cursor: pointer;
+       }
+       .like-dislike-container {
+ --dark-grey: #353535;
+ --middle-grey: #767676;
+ --lightest-grey: linear-gradient(#fafafa,#ebebeb);
+ --shadow: 0 5px 15px 0 #00000026;
+ --shadow-active: 0 5px 5px 0 #00000026;
+ --border-radius-main: 10px;
+ --border-radius-icon: 50px;
+ position: relative;
+ display: flex;
+ text-align: center;
+ flex-direction: column;
+ align-items: center;
+ cursor: default;
+ color: var(--dark-grey);
+ opacity: .9;
+ margin: auto;
+ padding: 1.5rem;
+ font-weight: 600;
+ background: var(--lightest-grey);
+ max-width: max-content;
+ border-radius: var(--border-radius-main);
+ box-shadow: var(--shadow);
+ transition: .2s ease all;
+}
+
+.like-dislike-container:hover {
+ box-shadow: var(--shadow-active);
+}
+
+.like-dislike-container .tool-box {
+ position: absolute;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ width: 2.5rem;
+ height: 2.5rem;
+ top: 0;
+ right: 0;
+ border-radius: var(--border-radius-main);
+}
+
+.like-dislike-container .btn-close {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ text-align: center;
+ width: .8rem;
+ height: .8rem;
+ color: transparent;
+ font-size: 0;
+ cursor: pointer;
+ background-color: #ff000080;
+ border: none;
+ border-radius: var(--border-radius-main);
+ transition: .2s ease all;
+}
+
+.like-dislike-container .btn-close:hover {
+ width: 1rem;
+ height: 1rem;
+ font-size: 1rem;
+ color: #ffffff;
+ background-color: #ff0000cc;
+ box-shadow: var(--shadow-active);
+}
+
+.like-dislike-container .btn-close:active {
+ width: .9rem;
+ height: .9rem;
+ font-size: .9rem;
+ color: #ffffffde;
+ --shadow-btn-close: 0 3px 3px 0 #00000026;
+ box-shadow: var(--shadow-btn-close);
+}
+
+.like-dislike-container .text-content {
+ margin-bottom: 1rem;
+ font-size: 18px;
+ line-height: 1.6;
+ cursor: default;
+}
+
+.like-dislike-container .icons-box {
+ display: flex;
+}
+
+.like-dislike-container .icons {
+ position: relative;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ opacity: .6;
+ margin: 0 0.5rem;
+ cursor: pointer;
+ user-select: none;
+ border: 1px solid var(--middle-grey);
+ border-radius: var(--border-radius-icon);
+ transition: .2s ease all;
+}
+
+.like-dislike-container .icons:hover {
+ opacity: .9;
+ box-shadow: var(--shadow);
+}
+
+.like-dislike-container .icons:active {
+ opacity: .9;
+ box-shadow: var(--shadow-active);
+}
+
+.like-dislike-container .icons .btn-label {
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ padding: 0 0.5rem;
+ cursor: pointer;
+ position: relative;
+}
+
+.like-dislike-container .like-text-content {
+ border-right: 0.1rem solid var(--dark-grey);
+ padding: 0 0.6rem 0 0.5rem;
+ pointer-events: none;
+}
+
+.like-dislike-container .dislike-text-content {
+ border-left: 0.1rem solid var(--dark-grey);
+ padding: 0 0.5rem 0 0.6rem;
+ pointer-events: none;
+}
+
+.like-dislike-container .icons .svgs {
+ width: 1.3rem;
+ fill: #000000;
+ box-sizing: content-box;
+ padding: 10px 10px;
+ transition: .2s ease all;
+}
+
+/* Hide the default checkbox */
+.like-dislike-container .icons .input-box {
+ position: absolute;
+ opacity: 0;
+ cursor: pointer;
+ height: 0;
+ width: 0;
+}
+
+.like-dislike-container .icons #icon-like-regular {
+ display: block;
+}
+
+.like-dislike-container .icons #icon-like-solid {
+ display: none;
+}
+
+.like-dislike-container .icons:hover :is(#icon-like-solid, #icon-like-regular) {
+ animation: rotate-icon-like 0.7s ease-in-out both;
+}
+
+.like-dislike-container .icons #like-checkbox:checked ~ #icon-like-regular {
+ display: none;
+ animation: checked-icon-like 0.5s;
+}
+
+.like-dislike-container .icons #like-checkbox:checked ~ #icon-like-solid {
+ display: block;
+ animation: checked-icon-like 0.5s;
+}
+
+.like-dislike-container .icons #icon-dislike-regular {
+ display: block;
+ transform: rotate(180deg);
+}
+
+.like-dislike-container .icons #icon-dislike-solid {
+ display: none;
+ transform: rotate(180deg);
+}
+
+.like-dislike-container .icons:hover :is(#icon-dislike-solid, #icon-dislike-regular) {
+ animation: rotate-icon-dislike 0.7s ease-in-out both;
+}
+
+.like-dislike-container .icons #dislike-checkbox:checked ~ #icon-dislike-regular {
+ display: none;
+ animation: checked-icon-dislike 0.5s;
+}
+
+.like-dislike-container .icons #dislike-checkbox:checked ~ #icon-dislike-solid {
+ display: block;
+ animation: checked-icon-dislike 0.5s;
+}
+
+.like-dislike-container .icons .fireworks {
+ transform: scale(0.4);
+}
+
+.like-dislike-container .icons #like-checkbox:checked ~ .fireworks > .checked-like-fx {
+ position: absolute;
+ width: 10px;
+ height: 10px;
+ right: 40px;
+ border-radius: 50%;
+ box-shadow: 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff;
+ animation: 1s fireworks-bang ease-out forwards, 1s fireworks-gravity ease-in forwards, 5s fireworks-position linear forwards;
+ animation-duration: 1.25s, 1.25s, 6.25s;
+}
+
+.like-dislike-container .icons #dislike-checkbox:checked ~ .fireworks > .checked-dislike-fx {
+ position: absolute;
+ width: 10px;
+ height: 10px;
+ left: 40px;
+ border-radius: 50%;
+ box-shadow: 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff, 0 0 #fff;
+ animation: 1s fireworks-bang ease-out forwards, 1s fireworks-gravity ease-in forwards, 5s fireworks-position linear forwards;
+ animation-duration: 1.25s, 1.25s, 6.25s;
+}
+
+/* Shake Animation */
+@keyframes rotate-icon-like {
+ 0% {
+   transform: rotate(0deg) translate3d(0, 0, 0);
+ }
+
+ 25% {
+   transform: rotate(3deg) translate3d(0, 0, 0);
+ }
+
+ 50% {
+   transform: rotate(-3deg) translate3d(0, 0, 0);
+ }
+
+ 75% {
+   transform: rotate(1deg) translate3d(0, 0, 0);
+ }
+
+ 100% {
+   transform: rotate(0deg) translate3d(0, 0, 0);
+ }
+}
+
+@keyframes rotate-icon-dislike {
+ 0% {
+   transform: rotate(180deg) translate3d(0, 0, 0);
+ }
+
+ 25% {
+   transform: rotate(183deg) translate3d(0, 0, 0);
+ }
+
+ 50% {
+   transform: rotate(177deg) translate3d(0, 0, 0);
+ }
+
+ 75% {
+   transform: rotate(181deg) translate3d(0, 0, 0);
+ }
+
+ 100% {
+   transform: rotate(180deg) translate3d(0, 0, 0);
+ }
+}
+
+/* Checked Animation */
+@keyframes checked-icon-like {
+ 0% {
+   transform: scale(0);
+   opacity: 0;
+ }
+
+ 50% {
+   transform: scale(1.2) rotate(-10deg);
+ }
+}
+
+@keyframes checked-icon-dislike {
+ 0% {
+   transform: scale(0) rotate(180deg);
+   opacity: 0;
+ }
+
+ 50% {
+   transform: scale(1.2) rotate(170deg);
+ }
+}
+
+/* Fireworks Animation */
+@keyframes fireworks-position {
+ 0%, 19.9% {
+   margin-top: 10%;
+   margin-left: 40%;
+ }
+
+ 20%, 39.9% {
+   margin-top: 40%;
+   margin-left: 30%;
+ }
+
+ 40%, 59.9% {
+   margin-top: 20%;
+   margin-left: 70%;
+ }
+
+ 60%, 79.9% {
+   margin-top: 30%;
+   margin-left: 20%;
+ }
+
+ 80%, 99.9% {
+   margin-top: 30%;
+   margin-left: 80%;
+ }
+}
+
+@keyframes fireworks-gravity {
+ to {
+   transform: translateY(200px);
+   opacity: 0;
+ }
+}
+
+@keyframes fireworks-bang {
+ to {
+   box-shadow: 114px -107.3333333333px #8800ff, 212px -166.3333333333px #a600ff, 197px -6.3333333333px #ff006a, 179px -329.3333333333px #3300ff, -167px -262.3333333333px #ff0062, 233px 65.6666666667px #ff008c, 81px 42.6666666667px #0051ff, -13px 54.6666666667px #00ff2b, -60px -183.3333333333px #0900ff, 127px -259.3333333333px #ff00e6, 117px -122.3333333333px #00b7ff, 95px 20.6666666667px #ff8000, 115px 1.6666666667px #0004ff, -160px -328.3333333333px #00ff40, 69px -242.3333333333px #000dff, -208px -230.3333333333px #ff0400, 30px -15.3333333333px #e6ff00, 235px -15.3333333333px #fb00ff, 80px -232.3333333333px #d5ff00, 175px -173.3333333333px #00ff3c, -187px -176.3333333333px #aaff00, 4px 26.6666666667px #ff6f00, 227px -106.3333333333px #ff0099, 119px 17.6666666667px #00ffd5, -102px 4.6666666667px #ff0088, -16px -4.3333333333px #00fff7, -201px -310.3333333333px #00ffdd, 64px -181.3333333333px #f700ff, -234px -15.3333333333px #00fffb, -184px -263.3333333333px #aa00ff, 96px -303.3333333333px #0037ff, -139px 10.6666666667px #0026ff, 25px -205.3333333333px #00ff2b, -129px -322.3333333333px #40ff00, -235px -187.3333333333px #26ff00, -136px -237.3333333333px #0091ff, -82px -321.3333333333px #6a00ff, 7px -267.3333333333px #ff00c8, -155px 30.6666666667px #0059ff, -85px -73.3333333333px #6a00ff, 60px -199.3333333333px #55ff00, -9px -289.3333333333px #00ffaa, -208px -167.3333333333px #00ff80, -13px -299.3333333333px #ff0004, 179px -164.3333333333px #ff0044, -112px 12.6666666667px #0051ff, -209px -125.3333333333px #ff00bb, 14px -101.3333333333px #00ff95, -184px -292.3333333333px #ff0099, -26px -168.3333333333px #09ff00, 129px -67.3333333333px #0084ff, -17px -23.3333333333px #0059ff, 129px 34.6666666667px #7300ff, 35px -24.3333333333px #ffd900, -12px -297.3333333333px #ff8400, 129px -156.3333333333px #0dff00, 157px -29.3333333333px #1a00ff, -221px 6.6666666667px #ff0062, 0px -311.3333333333px #ff006a, 155px 50.6666666667px #00ffaa, -71px -318.3333333333px #0073ff;
+ }
+}
+.slider {
+   position: relative;
+   width: 100%;
+   height: 400px; /* Yüksekliği resimlerin yüksekliğine göre ayarlayabilirsiniz */
+   overflow: hidden;
+}
+
+.slides {
+   display: flex;
+   width: 100%;
+   height: 100%;
+   transition: transform 1s ease-in-out;
+}
+
+.slide {
+   min-width: 100%;
+   box-sizing: border-box;
+}
+
+.slide img {
+   width: 100%;
+   height: 100%;
+   object-fit: cover; /* Resmin kutuya uyacak şekilde kesilmesini sağlar */
+}
+
+/* Animasyon: Sağdan sola geçiş */
+@keyframes slide {
+   0% { transform: translateX(0); }
+   25% { transform: translateX(-100%); }
+   50% { transform: translateX(-200%); }
+   75% { transform: translateX(-300%); }
+   100% { transform: translateX(0); }
+}
+
+/* Animasyon: Scroll ile görünürlük */
+.animate-on-scroll {
+   opacity: 0;
+   transform: translateY(20px);
+   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-on-scroll.visible {
+   opacity: 1;
+   transform: translateY(0);
+}
+
+</style>
+{% endblock %}

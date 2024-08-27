@@ -1,10 +1,12 @@
-from django.shortcuts import render, get_list_or_404, get_object_or_404
-from .models import Category, Product
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Category, Product, Comment
 from django.core.paginator import Paginator
 from django.db.models import Count
 import random
 from account_app.models import Favorite, Cart, CartItem
-from django.db.models import Case, When
+from django.db.models import Avg, Case, When
+from .forms import CommentForm
+from django.contrib import messages
 
 def index(request):
     categories = Category.objects.all()
@@ -20,6 +22,9 @@ def index(request):
         shuffled_product_ids = request.session['shuffled_products']
         preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(shuffled_product_ids)])
         product_list = Product.objects.filter(pk__in=shuffled_product_ids).order_by(preserved)
+
+    # Ortalama yıldız puanlarını hesaplayalım
+    product_list = product_list.annotate(avg_rating=Avg('comments__rating'))
 
     # Filtering by category
     selected_category = request.GET.get('category')
@@ -67,14 +72,40 @@ def index(request):
         'max_price': max_price,
         'sort_by': sort_by,
         'user_favorites': user_favorites,
-        'cart_item_count': cart_item_count,  # Pass the cart item count to the template
+        'cart_item_count': cart_item_count,
     })
-
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    return render(request, 'product_detail.html', {'product': product})
+    related_products = Product.objects.order_by('?')[:6]  # Rastgele 6 ürün
 
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            # Aynı email adresiyle aynı ürün için daha önce yorum yapılmış mı kontrol et
+            existing_comment = Comment.objects.filter(product=product, email=email).exists()
+            
+            if existing_comment:
+                messages.error(request, 'Bu email adresi ile bu ürüne zaten yorum yaptınız.')
+            else:
+                comment = form.save(commit=False)
+                comment.product = product
+                comment.save()
+                messages.success(request, 'Yorumunuz başarıyla eklendi.')
+                return redirect('product_detail', product_id=product.id)
+        else:
+            print(form.errors)  # Form hatalarını konsola yazdır
+    else:
+        form = CommentForm()
 
+    comments = product.comments.all()
+
+    return render(request, 'product_detail.html', {
+        'product': product,
+        'related_products': related_products,
+        'form': form,
+        'comments': comments,
+    })
 def category_products(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     products = Product.objects.filter(category=category)
