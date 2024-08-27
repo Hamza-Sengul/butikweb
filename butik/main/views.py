@@ -13,10 +13,11 @@ def index(request):
 
     # Oturumda daha önce karıştırılmış bir liste olup olmadığını kontrol et
     if 'shuffled_products' not in request.session:
-        product_list = list(Product.objects.all())
-        random.shuffle(product_list)
+        product_list = Product.objects.all()  # Bu noktada QuerySet olarak bırakın
+        product_ids = list(product_list.values_list('id', flat=True))
+        random.shuffle(product_ids)
         # Karıştırılmış listeyi oturuma kaydet
-        request.session['shuffled_products'] = [product.id for product in product_list]
+        request.session['shuffled_products'] = product_ids
     else:
         # Oturumda kayıtlı olan karıştırılmış listeyi kullan
         shuffled_product_ids = request.session['shuffled_products']
@@ -74,6 +75,7 @@ def index(request):
         'user_favorites': user_favorites,
         'cart_item_count': cart_item_count,
     })
+
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     related_products = Product.objects.order_by('?')[:6]  # Rastgele 6 ürün
