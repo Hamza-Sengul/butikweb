@@ -45,7 +45,7 @@
     padding: 10px 20px;
     border-radius: 5px;
     z-index: 1000;
-    display: none; /* Başlangıçta gizli */
+    display: none;
 }
 
     </style>
@@ -54,7 +54,7 @@
     <div id="cart-message" style="display: none;"></div>
 
 
-  <!--Start of Tawk.to Script-->
+ 
 <script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
     (function(){
@@ -66,7 +66,7 @@
     s0.parentNode.insertBefore(s1,s0);
     })();
     </script>
-    <!--End of Tawk.to Script-->
+ 
 
     {% include 'partials/_navbar.html' %}
     <!-- <a href="https://wa.me/">
@@ -161,7 +161,7 @@
                         this.querySelector('i').style.color = '';
                     }
                     
-                    // Show the message
+              
                     const messageBox = document.createElement('div');
                     messageBox.innerText = data.message;
                     messageBox.style.position = 'fixed';
@@ -174,7 +174,7 @@
                     messageBox.style.zIndex = 1000;
                     document.body.appendChild(messageBox);
                     
-                    // Remove the message after 3 seconds
+                 
                     setTimeout(() => {
                         messageBox.remove();
                     }, 3000);
@@ -204,7 +204,7 @@
     
     cartForms.forEach(form => {
         form.addEventListener('submit', function(event) {
-            event.preventDefault(); // Sayfanın yenilenmesini engeller
+            event.preventDefault(); 
             const url = this.action;
 
             fetch(url, {
@@ -218,9 +218,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.cart_item_count !== undefined) {
-                    updateCartBadge(data.cart_item_count); // Sepet simgesini güncelle
+                    updateCartBadge(data.cart_item_count); 
                 }
-                // Sepete eklendiği mesajını göstermek isterseniz
+              
                 showAddToCartMessage();
             })
             .catch(error => console.error('Error:', error));
@@ -258,7 +258,7 @@
         messageBox.style.zIndex = 1000;
         document.body.appendChild(messageBox);
 
-        // Mesajı 3 saniye sonra kaldır
+        
         setTimeout(() => {
             messageBox.remove();
         }, 3000);
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     cartForms.forEach(form => {
         form.addEventListener('submit', function(event) {
-            event.preventDefault(); // Sayfanın yenilenmesini engeller
+            event.preventDefault(); 
             const url = this.action;
 
             fetch(url, {
@@ -296,9 +296,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.cart_item_count !== undefined) {
-                    updateCartBadge(data.cart_item_count); // Sepet simgelerini güncelle
+                    updateCartBadge(data.cart_item_count); 
                 }
-                showAddToCartMessage(data.message); // Sepete eklendi mesajını göster
+                showAddToCartMessage(data.message); 
             })
             .catch(error => console.error('Error:', error));
         });
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
         messageBox.style.zIndex = 1000;
         document.body.appendChild(messageBox);
 
-        // Mesajı 3 saniye sonra kaldır
+       
         setTimeout(() => {
             messageBox.remove();
         }, 3000);

@@ -17,7 +17,7 @@
         <h2>{{ product.name }}</h2>
     </div>
     <div class="urunresim">
-        <!-- Slider -->
+  
         <div class="slider">
             <div class="slides">
                 {% for image in product.images.all %}
@@ -61,7 +61,7 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // JavaScript for slider
+   
         const slides = document.querySelector('.slides');
         const slideCount = document.querySelectorAll('.slide').length;
         let index = 0;
@@ -86,19 +86,19 @@
         const handleTouchEnd = (e) => {
             touchEndX = e.touches[0].clientX;
             if (touchStartX > touchEndX + 50) {
-                // Swipe left
+               
                 moveToNextSlide();
             } else if (touchStartX < touchEndX - 50) {
-                // Swipe right
+                
                 moveToPreviousSlide();
             }
         };
 
-        // Slider functionality
+    
         slides.addEventListener('touchstart', handleTouchStart);
         slides.addEventListener('touchend', handleTouchEnd);
 
-        // Button functionality
+      
         document.querySelector('.prev').addEventListener('click', moveToPreviousSlide);
         document.querySelector('.next').addEventListener('click', moveToNextSlide);
     });
@@ -118,9 +118,9 @@
                     <span class="star-rating">
                         {% for i in "12345" %}
                             {% if i|add:"0" <= comment.rating %}
-                                <i class="fas fa-star" style="color: #ffc107;"></i> <!-- Filled star -->
+                                <i class="fas fa-star" style="color: #ffc107;"></i> 
                             {% else %}
-                                <i class="far fa-star" style="color: #e4e5e9;"></i> <!-- Empty star -->
+                                <i class="far fa-star" style="color: #e4e5e9;"></i>
                             {% endif %}
                         {% endfor %}
                     </span>
@@ -179,10 +179,10 @@
                 const value = this.getAttribute('data-value');
                 ratingInput.value = value;
 
-                // Reset star colors
+              
                 stars.forEach(s => s.style.color = '#e4e5e9');
                 
-                // Set color for selected stars
+              
                 for (let i = 0; i < value; i++) {
                     stars[i].style.color = '#ffc107';
                 }
@@ -195,7 +195,7 @@
     .star {
         font-size: 24px;
         cursor: pointer;
-        color: #e4e5e9; /* Default star color */
+        color: #e4e5e9; 
         margin-right: 5px;
     }
 

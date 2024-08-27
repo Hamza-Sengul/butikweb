@@ -3,7 +3,7 @@
 {% block content %}
 <div class="mt-5" style="margin-top: 270px;">
     <div class="row" style="margin-top: 170px;">
-        <!-- Sidebar -->
+      
         <div class="col-md-3">
             <div class="card mb-4">
                 <div class="card-body">
@@ -20,11 +20,11 @@
             
         </div>
 
-        <!-- Main Content -->
+        
         <div style="margin-top: 50px;" class="col-md-9">
           
 
-            <!-- Siparişler -->
+           
             {% if active_tab == 'orders' %}
                 <h3 class="mb-4">Siparişlerim</h3>
                 {% if orders %}
@@ -45,7 +45,7 @@
                 {% endif %}
             {% endif %}
 
-            <!-- Değerlendirmeler -->
+            
             {% if active_tab == 'reviews' %}
                 <h3 class="mb-4">Değerlendirmelerim</h3>
                 {% if comments %}
@@ -63,9 +63,9 @@
                 {% endif %}
             {% endif %}
 
-            <!-- Kullanıcı Bilgileri ve Şifre Değiştirme Formu -->
+      
             <div id="update-info-section" style="display: none;">
-                <!-- Kullanıcı Bilgileri Formu -->
+            
                 <form method="POST" class="mb-5">
                     {% csrf_token %}
                     <div class="card shadow-sm">
@@ -96,7 +96,7 @@
                     </div>
                 </form>
 
-                <!-- Şifre Değiştirme Formu -->
+               
                 <form method="POST">
                     {% csrf_token %}
                     <div class="card shadow-sm">

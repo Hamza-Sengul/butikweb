@@ -31,39 +31,13 @@ def login_request(request):
 
         if user is not None:
             login(request, user)
-            # Ensure the user has a profile
+      
             Profile.objects.get_or_create(user=user)
             return redirect('home')
         else:
             return render(request, "account/login.html", {"error": "Email veya parola yanlış"})
     return render(request, "account/login.html")
 
-# def register_request(request):
-#     if request.user.is_authenticated:
-#         return redirect("home")
-#     if request.method == "POST":
-#         username = request.POST["username"]
-#         email = request.POST["email"]
-#         firstname = request.POST["firstname"]
-#         lastname = request.POST["lastname"]
-#         password = request.POST["password"]
-#         repassword = request.POST["repassword"]
-
-#         if password == repassword:
-#             if User.objects.filter(username=username).exists():
-#                 return render(request, "account/register.html", {"error":"username zaten var"})
-
-#             else:
-#                 if User.objects.filter(email=email).exists():
-#                     return render(request, "account/register.html", {"error":"email zaten var"})
-#                 else:
-#                     user = User.objects.create_user(username=username, email=email, first_name=firstname, last_name=lastname, password=password)
-#                     user.save()
-#                     return redirect('login')
-#         else:
-#             return render(request, "account/register.html", {"error":"parola eşleşmiyor"})
-
-#     return render(request, "account/register.html")
 
 def register_request(request):
     if request.user.is_authenticated:
@@ -84,7 +58,7 @@ def register_request(request):
                 return render(request, "account/register.html", {"error":"email zaten var"})
             else:
                 verification_code = random.randint(100000, 999999)
-                # Store the verification code and user data in the session
+               
                 request.session['verification_code'] = verification_code
                 request.session['user_data'] = {
                     'username': username,
@@ -94,11 +68,11 @@ def register_request(request):
                     'password': password
                 }
                 
-                # Send the verification code to the user's email
+             
                 send_mail(
                     'Email Verification',
                     f'Your verification code is {verification_code}',
-                    'your_email@example.com', # Replace with your email
+                    'your_email@example.com', 
                     [email],
                     fail_silently=False,
                 )
@@ -123,7 +97,7 @@ def verify_email(request):
                 password=user_data['password']
             )
             user.save()
-            # Clear the session data after successful registration
+          
             del request.session['verification_code']
             del request.session['user_data']
             return redirect('login')
@@ -159,7 +133,7 @@ def remove_from_favorites(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     favorite = get_object_or_404(Favorite, user=request.user, product=product)
     favorite.delete()
-    return redirect('favorites')  # Redirect to favorites page after removing
+    return redirect('favorites') 
 
 
 
@@ -168,7 +142,7 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
 
-    # Find or create the cart item and increment its quantity
+  
     cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
     
     if not created:
@@ -253,11 +227,11 @@ def save_user_profile(sender, instance, **kwargs):
 
 @login_required
 def account_view(request):
-    # Ensure the user has a profile
+
     profile, created = Profile.objects.get_or_create(user=request.user)
 
-    # Determine which tab is active
-    active_tab = request.GET.get('tab', 'orders')  # Default tab is 'orders'
+  
+    active_tab = request.GET.get('tab', 'orders') 
 
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
@@ -271,7 +245,7 @@ def account_view(request):
             return redirect('account')
         elif password_form.is_valid():
             user = password_form.save()
-            update_session_auth_hash(request, user)  # Important to keep the user logged in after password change
+            update_session_auth_hash(request, user)  
             messages.success(request, 'Your password was successfully updated!')
             return redirect('account')
         else:
@@ -281,12 +255,12 @@ def account_view(request):
         profile_form = ProfileUpdateForm(instance=profile)
         password_form = CustomPasswordChangeForm(request.user)
 
-    # Fetch orders and comments based on the active tab
+ 
     if active_tab == 'reviews':
         comments = Comment.objects.filter(email=request.user.email)
         orders = None
     else:
-        orders = Order.objects.filter(user=request.user)  # Adjust this query to your model structure
+        orders = Order.objects.filter(user=request.user)  
         comments = None
 
     return render(request, 'account/account.html', {
@@ -315,6 +289,6 @@ def checkout_view(request):
 @login_required
 def confirm_order_view(request):
     if request.method == 'POST':
-        # Burada sipariş oluşturma ve ödeme işlemleri yapılır
+        
         return JsonResponse({'status': 'order_confirmed'})
     return redirect('cart_detail')

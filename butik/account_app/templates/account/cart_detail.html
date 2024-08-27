@@ -20,14 +20,14 @@
             <td>{{ item.product.price }} TL</td>
             <td>
                 <div class="input-group">
-                    <!-- Decrease Form -->
+                 
                     <form method="post" action="{% url 'update_cart_item' item.product.id %}" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="decrease">
                         <button type="submit" class="btn btn-outline-secondary btn-sm">-</button>
                     </form>
                     <span class="mx-2">{{ item.quantity }}</span>
-                    <!-- Increase Form -->
+                  
                     <form method="post" action="{% url 'update_cart_item' item.product.id %}" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="increase">
@@ -52,7 +52,7 @@
 </table>
 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addressModal">Satın Al</button>
 
-<!-- Address Modal -->
+
 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -62,7 +62,7 @@
             </div>
             <div class="modal-body">
                 {% if not profile.address %}
-                    <!-- Adres Formu -->
+                  
                     <form id="addressForm" method="post">
                         {% csrf_token %}
                         {{ address_form.as_p }}
@@ -85,7 +85,7 @@
     </div>
 </div>
 
-<!-- Checkout Modal -->
+
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -127,7 +127,7 @@
     </div>
 </div>
 
-<!-- Update Address Modal -->
+
 <div class="modal fade" id="updateAddressModal" tabindex="-1" aria-labelledby="updateAddressModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -136,7 +136,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Adres Güncelleme Formu -->
+           
                 <form id="updateAddressForm" method="post">
                     {% csrf_token %}
                     {{ address_form.as_p }}
@@ -166,13 +166,13 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Adres başarıyla kaydedildiyse checkout modal'ını aç
+             
                 document.getElementById('addressModal').classList.remove('show');
                 document.getElementById('addressModal').style.display = 'none';
                 document.body.classList.remove('modal-open');
                 document.querySelector('.modal-backdrop').remove();
 
-                // Checkout modal'ını aç
+               
                 var checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'), {});
                 checkoutModal.show();
             } else {
@@ -197,7 +197,7 @@
         .then(data => {
             if (data.success) {
                 alert("Adres başarıyla güncellendi.");
-                // Güncelleme sonrası adres modal'ını kapatın
+               
                 document.getElementById('updateAddressModal').classList.remove('show');
                 document.getElementById('updateAddressModal').style.display = 'none';
                 document.body.classList.remove('modal-open');
@@ -210,7 +210,7 @@
     }
 
     function confirmOrder() {
-        // Sipariş onayı yapılıyor veya sayfa yönlendirilir
+        
         window.location.href = "{% url 'payment_page' %}";
     }
 </script>

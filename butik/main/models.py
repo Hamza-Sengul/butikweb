@@ -32,7 +32,7 @@ class Comment(models.Model):
     surname = models.CharField(max_length=100)
     email = models.EmailField()
     content = models.TextField()
-    rating = models.PositiveIntegerField(default=1)  # Rating between 1 and 5
+    rating = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def masked_name(self):
