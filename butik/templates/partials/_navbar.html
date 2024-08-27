@@ -34,7 +34,11 @@
                 {% for category in categories %}
                 <li><a href="{% url 'category_products' category.id %}"><button>{{ category.name }}</button></a></li>
                 {% endfor %}
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'account' %}"><i class="fa-solid fa-user" style="color: black;"></i></a></li>
+                {% else %}
                 <li><a href="{% url 'login' %}"><i class="fa-solid fa-user" style="color: black;"></i></a></li>
+                {% endif %}
                 <li><a href="{% url 'favorites' %}"><i class="fa-solid fa-heart" style="color: black;"></i></a></li>
                 <li style="position: relative;">
                     <a href="{% url 'cart_detail' %}">
@@ -49,7 +53,11 @@
         
         <div class="mobilemenu">
             <ul>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'account' %}"><i class="fa-solid fa-user" style="color: black;"></i>Hesabım</a></li>
+                {% else %}
                 <li><a href="{% url 'login' %}"><i class="fa-solid fa-user" style="color: black;"></i>Hesabım</a></li>
+                {% endif %}
                 <li><a href="{% url 'favorites' %}"><i class="fa-solid fa-heart" style="color: black;"></i>Favorilerim</a></li>
                 <li style="position: relative;">
                     <a href="{% url 'cart_detail' %}">

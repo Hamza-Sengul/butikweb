@@ -2,53 +2,215 @@
 
 {% block content %}
 
-    <h2 style="margin-top: 170px;">Sepetim</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Ürün</th>
-                <th>Fiyat</th>
-                <th>Adet</th>
-                <th>Toplam</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cart.items.all %}
-            <tr>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.product.price }} TL</td>
-                <td>
-                    <div class="input-group">
-                        <!-- Decrease Form -->
-                        <form method="post" action="{% url 'update_cart_item' item.product.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="decrease">
-                            <button type="submit" class="btn btn-outline-secondary btn-sm">-</button>
-                        </form>
-                        <span class="mx-2">{{ item.quantity }}</span>
-                        <!-- Increase Form -->
-                        <form method="post" action="{% url 'update_cart_item' item.product.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="increase">
-                            <button type="submit" class="btn btn-outline-secondary btn-sm">+</button>
-                        </form>
-                    </div>
-                </td>
-                <td>{{ item.get_total_price }} TL</td>
-                <td>
-                    <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-danger btn-sm">Kaldır</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3" class="text-right"><strong>Toplam:</strong></td>
-                <td><strong>{{ cart.get_total_price }} TL</strong></td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
-    <a href="#" class="btn btn-success">Satın Al</a>
+<h2 style="margin-top: 170px;">Sepetim</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ürün</th>
+            <th>Fiyat</th>
+            <th>Adet</th>
+            <th>Toplam</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart.items.all %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.product.price }} TL</td>
+            <td>
+                <div class="input-group">
+                    <!-- Decrease Form -->
+                    <form method="post" action="{% url 'update_cart_item' item.product.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="decrease">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">-</button>
+                    </form>
+                    <span class="mx-2">{{ item.quantity }}</span>
+                    <!-- Increase Form -->
+                    <form method="post" action="{% url 'update_cart_item' item.product.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="increase">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">+</button>
+                    </form>
+                </div>
+            </td>
+            <td>{{ item.get_total_price }} TL</td>
+            <td>
+                <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-danger btn-sm">Kaldır</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-right"><strong>Toplam:</strong></td>
+            <td><strong>{{ cart.get_total_price }} TL</strong></td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addressModal">Satın Al</button>
+
+<!-- Address Modal -->
+<div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addressModalLabel">Adres Bilgileri</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if not profile.address %}
+                    <!-- Adres Formu -->
+                    <form id="addressForm" method="post">
+                        {% csrf_token %}
+                        {{ address_form.as_p }}
+                    </form>
+                {% else %}
+                    <p>Adres Bilgileriniz:</p>
+                    <p>{{ profile.address }}</p>
+                    <p>Bu adresi kullanmak istiyor musunuz?</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                {% if not profile.address %}
+                    <button type="button" class="btn btn-primary" onclick="submitAddressForm()">Adres Bilgilerini Kaydet</button>
+                {% else %}
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#checkoutModal">Evet, Devam Et</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#updateAddressModal">Adresimi Güncelle</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="checkoutModalLabel">Sipariş Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4>Sipariş Özeti</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th>Adet</th>
+                            <th>Toplam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart.items.all %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.get_total_price }} TL</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="text-right"><strong>Toplam:</strong></td>
+                            <td><strong>{{ cart.get_total_price }} TL</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="confirmOrder()">Siparişi Onayla ve Ödeme Yap</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Address Modal -->
+<div class="modal fade" id="updateAddressModal" tabindex="-1" aria-labelledby="updateAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateAddressModalLabel">Adresinizi Güncelleyin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Adres Güncelleme Formu -->
+                <form id="updateAddressForm" method="post">
+                    {% csrf_token %}
+                    {{ address_form.as_p }}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="submitUpdateAddressForm()">Adres Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
+<script>
+    function submitAddressForm() {
+        const form = document.getElementById('addressForm');
+        const formData = new FormData(form);
+
+        fetch("{% url 'save_address' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Adres başarıyla kaydedildiyse checkout modal'ını aç
+                document.getElementById('addressModal').classList.remove('show');
+                document.getElementById('addressModal').style.display = 'none';
+                document.body.classList.remove('modal-open');
+                document.querySelector('.modal-backdrop').remove();
+
+                // Checkout modal'ını aç
+                var checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'), {});
+                checkoutModal.show();
+            } else {
+                alert("Adres kaydedilirken bir hata oluştu.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function submitUpdateAddressForm() {
+        const form = document.getElementById('updateAddressForm');
+        const formData = new FormData(form);
+
+        fetch("{% url 'save_address' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Adres başarıyla güncellendi.");
+                // Güncelleme sonrası adres modal'ını kapatın
+                document.getElementById('updateAddressModal').classList.remove('show');
+                document.getElementById('updateAddressModal').style.display = 'none';
+                document.body.classList.remove('modal-open');
+                document.querySelector('.modal-backdrop').remove();
+            } else {
+                alert("Adres güncellenirken bir hata oluştu.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function confirmOrder() {
+        // Sipariş onayı yapılıyor veya sayfa yönlendirilir
+        window.location.href = "{% url 'payment_page' %}";
+    }
+</script>

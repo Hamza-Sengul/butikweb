@@ -77,6 +77,7 @@ def index(request):
     })
 
 def product_detail(request, product_id):
+    categories = Category.objects.all()
     product = get_object_or_404(Product, id=product_id)
     related_products = Product.objects.order_by('?')[:6]  # Rastgele 6 ürün
 
@@ -107,6 +108,7 @@ def product_detail(request, product_id):
         'related_products': related_products,
         'form': form,
         'comments': comments,
+        'categories': categories
     })
 def category_products(request, category_id):
     category = get_object_or_404(Category, id=category_id)
@@ -117,4 +119,31 @@ def category_products(request, category_id):
         'category': category,
         'products': products,
         'categories': categories,
+    })
+
+
+def category_products(request, category_id):
+    categories = Category.objects.all()
+    category = get_object_or_404(Category, id=category_id)
+    products = Product.objects.filter(category=category).annotate(avg_rating=Avg('comments__rating'))
+
+    # Pagination
+    paginator = Paginator(products, 20)  # Her sayfada 20 ürün göster
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
+
+    user_favorites = []
+    cart_item_count = 0
+    if request.user.is_authenticated:
+        user_favorites = Favorite.objects.filter(user=request.user).values_list('product_id', flat=True)
+        cart = Cart.objects.filter(user=request.user).first()
+        if cart:
+            cart_item_count = cart.items.count()
+
+    return render(request, 'category_products.html', {
+        'category': category,
+        'products': products,
+        'user_favorites': user_favorites,
+        'cart_item_count': cart_item_count,
+        'categories': categories
     })

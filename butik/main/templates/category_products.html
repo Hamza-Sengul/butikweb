@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="urunler">
+    {% for product in products %}
+    <div class="uruncard2">
+        <div class="uruncardresim2">
+            <div style="position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.7); color: #fff; padding: 5px 10px; border-radius: 5px;">
+                {% if product.avg_rating %}
+                    {{ product.avg_rating|floatformat:1 }} <i class="fa fa-star" style="color: #ffc107;"></i>
+                {% else %}
+                    0 <i class="fa fa-star" style="color: #ffc107;"></i>
+                {% endif %}
+            </div>
+
+            {% for image in product.images.all %}
+            {% if forloop.first %}
+            <a href="{% url 'product_detail' product.id %}"><img src="{{ image.image.url }}" alt=""></a>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="uruncardad">
+            <a href="{% url 'product_detail' product.id %}"><h3>{{ product.name }}</h3></a>
+        </div>
+        <div class="uruncardbg">
+            <a href="#">{{ product.category.name }}</a>
+        </div>
+        <div class="uruncardkalp2" style="z-index: 999;">
+            {% if user.is_authenticated %}
+                {% if product.id in user_favorites %}
+                    <a href="{% url 'add_to_favorites' product.id %}" class="favorite-toggle" data-product-id="{{ product.id }}">
+                        <i class="fa-solid fa-heart" style="color: red;"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'add_to_favorites' product.id %}" class="favorite-toggle" data-product-id="{{ product.id }}">
+                        <i class="fa-regular fa-heart"></i>
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}"><i class="fa-regular fa-heart"></i></a>
+            {% endif %}
+        </div>
+        <div class="uruncardfiyat">
+            <p>{{ product.price }} TL</p>
+        </div>
+        <div class="uruncardkesfet2">
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'add_to_cart' product.id %}" class="add-to-cart-form">
+                    {% csrf_token %}
+                    <button type="submit" id="addToCartButton{{ forloop.counter }}">Sepete Ekle</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">
+                    <button id="addToCartButton{{ forloop.counter }}">Sepete Ekle</button>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if products.has_previous %}
+            <a href="?page=1" class="pagination-button">&laquo; İlk</a>
+            <a href="?page={{ products.previous_page_number }}" class="pagination-button">Önceki</a>
+        {% endif %}
+
+        <span class="current">
+            Sayfa {{ products.number }} / {{ products.paginator.num_pages }} 
+        </span>
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}" class="pagination-button">Sonraki</a>
+            <a href="?page={{ products.paginator.num_pages }}" class="pagination-button">Son &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{% endblock %}

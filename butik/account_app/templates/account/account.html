@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="mt-5" style="margin-top: 270px;">
+    <div class="row" style="margin-top: 170px;">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Hoşgeldiniz! {{ user_form.instance.username }}</h5>
+                    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Çıkış Yap</a>
+                </div>
+            </div>
+            <div class="list-group">
+                <a href="?tab=orders" class="list-group-item list-group-item-action {% if active_tab == 'orders' %}active{% endif %}">Tüm Siparişlerim</a>
+                <a href="?tab=reviews" class="list-group-item list-group-item-action {% if active_tab == 'reviews' %}active{% endif %}">Değerlendirmelerim</a>
+                <a href="#update-info-section" class="list-group-item list-group-item-action">Kişisel Bilgilerimi Güncelle</a>
+                <a href="#" class="list-group-item list-group-item-action">Tekrar Satın Al</a>
+            </div>
+            
+        </div>
+
+        <!-- Main Content -->
+        <div style="margin-top: 50px;" class="col-md-9">
+          
+
+            <!-- Siparişler -->
+            {% if active_tab == 'orders' %}
+                <h3 class="mb-4">Siparişlerim</h3>
+                {% if orders %}
+                    <ul class="list-group mb-4">
+                        {% for order in orders %}
+                            <li class="list-group-item">
+                                <h5 class="mb-1">{{ order.date }}</h5>
+                                <p class="mb-1">{{ order.items_count }} Teslimat, {{ order.products_count }} Ürün</p>
+                                <p class="mb-1">Alıcı: {{ order.recipient_name }}</p>
+                                <p class="mb-1">Tutar: {{ order.total_price }} TL</p>
+                                <span class="badge bg-success">{{ order.status }}</span>
+                                <button class="btn btn-warning mt-2">Sipariş Detayı</button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Henüz siparişiniz yok.</p>
+                {% endif %}
+            {% endif %}
+
+            <!-- Değerlendirmeler -->
+            {% if active_tab == 'reviews' %}
+                <h3 class="mb-4">Değerlendirmelerim</h3>
+                {% if comments %}
+                    <ul class="list-group mb-4">
+                        {% for comment in comments %}
+                            <li class="list-group-item">
+                                <h5 class="mb-1">{{ comment.product.name }}</h5>
+                                <p class="mb-1">{{ comment.content }}</p>
+                                <span class="badge bg-info">{{ comment.rating }} / 5</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Henüz değerlendirme yapmadınız.</p>
+                {% endif %}
+            {% endif %}
+
+            <!-- Kullanıcı Bilgileri ve Şifre Değiştirme Formu -->
+            <div id="update-info-section" style="display: none;">
+                <!-- Kullanıcı Bilgileri Formu -->
+                <form method="POST" class="mb-5">
+                    {% csrf_token %}
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">Bilgilerimi Güncelle</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ user_form.username.label_tag }}
+                                    {{ user_form.username }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ user_form.email.label_tag }}
+                                    {{ user_form.email }}
+                                </div>
+                                <div class="col-md-6" style="width: 100%;">
+                                    {{ profile_form.address.label_tag }}
+                                    {{ profile_form.address }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ profile_form.phone.label_tag }}
+                                    {{ profile_form.phone }}
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">Güncelle</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Şifre Değiştirme Formu -->
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-danger text-white">
+                            <h4 class="mb-0">Şifre Değiştir</h4>
+                        </div>
+                        <div class="card-body">
+                            {{ password_form.old_password.label_tag }} <br>
+                            {{ password_form.old_password }}
+                            {{ password_form.new_password1.label_tag }}
+                            {{ password_form.new_password1 }}
+                            {{ password_form.new_password2.label_tag }}
+                            {{ password_form.new_password2 }}
+                            <button type="submit" class="btn btn-danger mt-3">Şifre Değiştir</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const updateInfoLink = document.querySelector('a[href="#update-info-section"]');
+        const updateInfoSection = document.getElementById('update-info-section');
+
+        updateInfoLink.addEventListener('click', function (event) {
+            event.preventDefault();
+            updateInfoSection.style.display = 'block';
+            updateInfoSection.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+{% endblock %}

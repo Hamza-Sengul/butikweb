@@ -1763,7 +1763,7 @@ button {
         }
         
         .pagination-button {
-            background-color: #FF4665;
+            background-color: #000;
             color: white;
             padding: 10px 15px;
             border-radius: 5px;
@@ -1773,7 +1773,7 @@ button {
         }
         
         .pagination-button:hover {
-            background-color: #FF4665;
+            background-color: #000;
         }
         
         .current {
@@ -1810,7 +1810,7 @@ button {
             margin-bottom: 0px;
         }
         .filter-sort input {
-            border:2px solid #FF4665;
+            border:2px solid #000;
         }
         
         .sort-options {
@@ -1826,7 +1826,7 @@ button {
         .sort-options select {
             padding: 5px 10px;
             border-radius: 5px;
-            border: 1px solid #FF4665;
+            border: 1px solid #000;
         }
         
         @media (max-width: 768px) {
@@ -1886,7 +1886,7 @@ button {
         .sort-options select {
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #FF4665;
+            border: 1px solid #000;
             width: 100%;
             box-sizing: border-box;
         }
