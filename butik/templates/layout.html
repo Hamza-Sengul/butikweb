@@ -1,0 +1,348 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <title>NO/97 Collection</title>
+    <style>
+      .container5 {
+        height: 2000px;
+      }
+
+      .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+
+      .animate-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+
+      #cart-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    display: none; /* Başlangıçta gizli */
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="cart-message" style="display: none;"></div>
+
+
+  
+
+    {% include 'partials/_navbar.html' %}
+    <a href="https://wa.me/">
+      <button class="Btn">
+        <span class="svgContainer">
+          <svg
+            viewBox="0 0 448 512"
+            fill="white"
+            height="1.6em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"
+            ></path>
+          </svg>
+        </span>
+        <span class="BG"></span>
+      </button>
+    </a>
+    {% block content %} {% endblock %}
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const scrollElements = document.querySelectorAll(".animate-on-scroll");
+
+        const elementInView = (el, dividend = 1) => {
+          const elementTop = el.getBoundingClientRect().top;
+
+          return (
+            elementTop <=
+            (window.innerHeight || document.documentElement.clientHeight) /
+              dividend
+          );
+        };
+
+        const displayScrollElement = (element) => {
+          element.classList.add("visible");
+        };
+
+        const hideScrollElement = (element) => {
+          element.classList.remove("visible");
+        };
+
+        const handleScrollAnimation = () => {
+          scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+              displayScrollElement(el);
+            } else {
+              hideScrollElement(el);
+            }
+          });
+        };
+
+        window.addEventListener("scroll", () => {
+          handleScrollAnimation();
+        });
+      });
+
+
+
+
+
+
+
+
+
+      
+    document.addEventListener('DOMContentLoaded', function() {
+        const favoriteToggles = document.querySelectorAll('.favorite-toggle');
+        
+        favoriteToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(event) {
+                event.preventDefault();
+                const url = this.href;
+                const productId = this.getAttribute('data-product-id');
+                
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'added') {
+                        this.querySelector('i').classList.remove('fa-regular');
+                        this.querySelector('i').classList.add('fa-solid');
+                        this.querySelector('i').style.color = 'red';
+                    } else if (data.status === 'removed') {
+                        this.querySelector('i').classList.remove('fa-solid');
+                        this.querySelector('i').classList.add('fa-regular');
+                        this.querySelector('i').style.color = '';
+                    }
+                    
+                    // Show the message
+                    const messageBox = document.createElement('div');
+                    messageBox.innerText = data.message;
+                    messageBox.style.position = 'fixed';
+                    messageBox.style.bottom = '20px';
+                    messageBox.style.right = '20px';
+                    messageBox.style.backgroundColor = '#28a745';
+                    messageBox.style.color = '#fff';
+                    messageBox.style.padding = '10px 20px';
+                    messageBox.style.borderRadius = '5px';
+                    messageBox.style.zIndex = 1000;
+                    document.body.appendChild(messageBox);
+                    
+                    // Remove the message after 3 seconds
+                    setTimeout(() => {
+                        messageBox.remove();
+                    }, 3000);
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const cartForms = document.querySelectorAll('form[action*="add_to_cart"]');
+    
+    cartForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Sayfanın yenilenmesini engeller
+            const url = this.action;
+
+            fetch(url, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_item_count !== undefined) {
+                    updateCartBadge(data.cart_item_count); // Sepet simgesini güncelle
+                }
+                // Sepete eklendiği mesajını göstermek isterseniz
+                showAddToCartMessage();
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    function updateCartBadge(count) {
+        const cartBadge = document.querySelector('.cart-badge');
+        if (count > 0) {
+            if (cartBadge) {
+                cartBadge.innerText = count;
+            } else {
+                const newBadge = document.createElement('span');
+                newBadge.classList.add('cart-badge');
+                newBadge.innerText = count;
+                document.querySelector('.fa-cart-shopping').parentElement.appendChild(newBadge);
+            }
+        } else {
+            if (cartBadge) {
+                cartBadge.remove();
+            }
+        }
+    }
+
+    function showAddToCartMessage() {
+        const messageBox = document.createElement('div');
+        messageBox.innerText = "Ürün sepete eklendi";
+        messageBox.style.position = 'fixed';
+        messageBox.style.bottom = '20px';
+        messageBox.style.right = '20px';
+        messageBox.style.backgroundColor = '#28a745';
+        messageBox.style.color = '#fff';
+        messageBox.style.padding = '10px 20px';
+        messageBox.style.borderRadius = '5px';
+        messageBox.style.zIndex = 1000;
+        document.body.appendChild(messageBox);
+
+        // Mesajı 3 saniye sonra kaldır
+        setTimeout(() => {
+            messageBox.remove();
+        }, 3000);
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const cartForms = document.querySelectorAll('.add-to-cart-form');
+    
+    cartForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Sayfanın yenilenmesini engeller
+            const url = this.action;
+
+            fetch(url, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.cart_item_count !== undefined) {
+                    updateCartBadge(data.cart_item_count); // Sepet simgelerini güncelle
+                }
+                showAddToCartMessage(data.message); // Sepete eklendi mesajını göster
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    function updateCartBadge(count) {
+        const cartBadges = document.querySelectorAll('.cart-badge');
+        const cartIcons = document.querySelectorAll('.fa-cart-shopping');
+
+        cartIcons.forEach(icon => {
+            let badge = icon.parentElement.querySelector('.cart-badge');
+            if (count > 0) {
+                if (badge) {
+                    badge.innerText = count;
+                } else {
+                    const newBadge = document.createElement('span');
+                    newBadge.classList.add('cart-badge');
+                    newBadge.innerText = count;
+                    icon.parentElement.appendChild(newBadge);
+                }
+            } else {
+                if (badge) {
+                    badge.remove();
+                }
+            }
+        });
+    }
+
+    function showAddToCartMessage(message) {
+        const messageBox = document.createElement('div');
+        messageBox.innerText = message || "Ürün sepete eklendi";
+        messageBox.style.position = 'fixed';
+        messageBox.style.bottom = '20px';
+        messageBox.style.right = '20px';
+        messageBox.style.backgroundColor = '#28a745';
+        messageBox.style.color = '#fff';
+        messageBox.style.padding = '10px 20px';
+        messageBox.style.borderRadius = '5px';
+        messageBox.style.zIndex = 1000;
+        document.body.appendChild(messageBox);
+
+        // Mesajı 3 saniye sonra kaldır
+        setTimeout(() => {
+            messageBox.remove();
+        }, 3000);
+    }
+});
+
+
+
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    {% include 'partials/_footer.html' %}
+  </body>
+</html>
